@@ -1,0 +1,36 @@
+gateway:
+  local_api_key_env: GATEWAY_API_KEY
+  admin_api_key_env: GATEWAY_ADMIN_API_KEY
+  request_timeout_seconds: 90.0
+  connect_timeout_seconds: 10.0
+  failure_threshold: 10
+  cooldown_seconds: 60.0
+  health_check_interval_seconds: 60.0
+  health_check_model: gpt-5.4-mini
+  recovery_check_interval_seconds: 20.0
+  recovery_success_threshold: 2
+  retry_status_codes:
+  - 504
+  - 429
+  - 500
+  - 502
+  - 503
+  - 408
+  state_database_path: gateway-state.db
+routing:
+  mode: auto
+  manual_strategy: priority_failover
+  pinned_provider: null
+providers:
+- name: relay-b
+  base_url: https://relay-b.example/v1
+  api_key_env: RELAY_B_API_KEY
+  price_multiplier: 0.2
+  priority: 2
+  enabled: true
+- name: relay-c
+  base_url: https://relay-c.example/v1
+  api_key_env: RELAY_C_API_KEY
+  price_multiplier: 0.3
+  priority: 3
+  enabled: true

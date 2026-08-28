@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex Gateway</title>
+  <link rel="stylesheet" href="/admin/assets/admin.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow" data-i18n="localGateway">LOCAL GATEWAY</p>
+        <h1>Codex Gateway</h1>
+      </div>
+      <div class="topbar-actions">
+        <span id="connection" class="connection">Not connected</span>
+        <button id="language-button" class="secondary-button language-button" title="Switch language" aria-label="Switch language">中文</button>
+        <button id="gateway-key-button" class="icon-button" title="Configure Codex API key" aria-label="Configure Codex API key">&#128273;</button>
+        <button id="refresh-button" class="icon-button" title="Refresh status" aria-label="Refresh status">&#8635;</button>
+        <button id="lock-button" class="icon-button" title="Clear admin session" aria-label="Clear admin session">&#128274;</button>
+      </div>
+    </header>
+
+    <section id="auth-panel" class="auth-panel">
+      <div>
+        <p class="eyebrow" data-i18n="adminAccess">ADMIN ACCESS</p>
+        <h2 data-i18n="connectTitle">Connect to local gateway</h2>
+        <p data-i18n="connectHelp">Enter the administrator key configured for this gateway.</p>
+      </div>
+      <form id="auth-form" class="auth-form">
+        <label><span data-i18n="adminKey">Administrator key</span><input id="admin-key" type="password" autocomplete="current-password" required></label>
+        <button type="submit" class="primary-button" data-i18n="connect">Connect</button>
+      </form>
+    </section>
+
+    <div id="dashboard" hidden>
+      <section class="summary-grid" aria-label="Gateway summary" data-i18n-aria="gatewaySummary">
+        <div class="stat"><span data-i18n="mode">Mode</span><strong id="summary-mode">-</strong></div>
+        <div class="stat"><span data-i18n="nextProvider">Next provider</span><strong id="summary-next">-</strong></div>
+        <div class="stat"><span data-i18n="enabled">Enabled</span><strong id="summary-enabled">-</strong></div>
+        <div class="stat"><span data-i18n="unavailable">Unavailable</span><strong id="summary-unavailable">-</strong></div>
+      </section>
+
+      <section class="section-header">
+        <div>
+          <p class="eyebrow" data-i18n="routing">ROUTING</p>
+          <h2 data-i18n="routeSelection">Route selection</h2>
+        </div>
+        <button id="save-routing" class="primary-button" data-i18n="saveRouting">Save routing</button>
+      </section>
+
+      <section class="routing-layout">
+        <div class="field-group">
+          <span class="field-label" data-i18n="mode">Mode</span>
+          <div class="segmented" role="group" aria-label="Routing mode" data-i18n-aria="routingMode">
+            <button data-mode="auto" type="button" data-i18n="automatic">Automatic</button>
+            <button data-mode="manual" type="button" data-i18n="manual">Manual</button>
+          </div>
+          <p id="mode-description" class="field-help"></p>
+        </div>
+        <div id="manual-controls" class="field-group">
+          <span class="field-label" data-i18n="manualStrategy">Manual strategy</span>
+          <div class="segmented" role="group" aria-label="Manual routing strategy" data-i18n-aria="manualStrategy">
+            <button data-strategy="priority_failover" type="button" data-i18n="priorityFailover">Priority failover</button>
+            <button data-strategy="failure_transfer" type="button" data-i18n="failureTransfer">Failure transfer</button>
+            <button data-strategy="pinned_provider" type="button" data-i18n="fixedProvider">Fixed provider</button>
+          </div>
+          <label id="pinned-field"><span data-i18n="fixedProvider">Fixed provider</span><select id="pinned-provider"></select></label>
+        </div>
+      </section>
+
+      <section class="section-header provider-header">
+        <div>
+          <p class="eyebrow" data-i18n="upstreams">UPSTREAMS</p>
+          <h2 data-i18n="providers">Providers</h2>
+        </div>
+        <button id="add-provider" class="primary-button" data-i18n="addProvider">Add provider</button>
+      </section>
+
+      <section class="table-wrap">
+        <table>
+          <thead><tr><th data-i18n="provider">Provider</th><th data-i18n="multiplier">Multiplier</th><th data-i18n="priority">Priority</th><th data-i18n="status">Status</th><th data-i18n="enabled">Enabled</th><th></th></tr></thead>
+          <tbody id="providers-body"></tbody>
+        </table>
+      </section>
+    </div>
+  </main>
+
+  <dialog id="provider-dialog">
+    <form id="provider-form" method="dialog">
+      <header class="dialog-header"><div><p class="eyebrow" data-i18n="upstream">UPSTREAM</p><h2 id="provider-dialog-title">Add provider</h2></div><button id="close-dialog" type="button" class="icon-button" title="Close" aria-label="Close">&#10005;</button></header>
+      <div class="form-grid">
+        <label><span data-i18n="alias">Alias</span><input id="provider-alias" pattern="[A-Za-z0-9][A-Za-z0-9_-]*" required></label>
+        <label><span data-i18n="priceMultiplier">Price multiplier</span><input id="provider-multiplier" type="number" min="0" step="0.001" required></label>
+        <label class="full"><span data-i18n="apiAddress">API address</span><input id="provider-url" type="url" required placeholder="https://provider.example"></label>
+        <label class="full"><span data-i18n="apiKey">API key</span><input id="provider-key" type="password" autocomplete="off" placeholder="Required when adding; blank keeps the current key" data-i18n-placeholder="apiKeyHelp"></label>
+        <label><span data-i18n="priority">Priority</span><input id="provider-priority" type="number" step="1" required value="100"></label>
+        <label class="checkbox-label"><input id="provider-enabled" type="checkbox" checked><span data-i18n="enabled">Enabled</span></label>
+      </div>
+      <div class="model-discovery"><button id="discover-models" type="button" class="secondary-button" data-i18n="discoverModels">Discover models</button><p id="discovered-models" class="field-help">Model choice remains with Codex.</p></div>
+      <footer class="dialog-footer"><button id="cancel-provider" type="button" class="secondary-button" data-i18n="cancel">Cancel</button><button type="submit" class="primary-button" data-i18n="saveProvider">Save provider</button></footer>
+    </form>
+  </dialog>
+  <dialog id="gateway-key-dialog">
+    <form id="gateway-key-form" method="dialog">
+      <header class="dialog-header"><div><p class="eyebrow" data-i18n="gateway">GATEWAY</p><h2 data-i18n="configureGatewayKey">Configure Codex API key</h2></div><button id="close-gateway-key-dialog" type="button" class="icon-button" title="Close" aria-label="Close">&#10005;</button></header>
+      <div class="gateway-key-form"><label><span data-i18n="gatewayApiKey">Gateway API key</span><span class="secret-input"><input id="gateway-api-key" type="password" autocomplete="new-password" required><button id="toggle-gateway-api-key" type="button" class="icon-button" title="Show key" aria-label="Show key">&#128065;</button><button id="copy-gateway-api-key" type="button" class="icon-button" title="Copy key" aria-label="Copy key">&#128203;</button></span></label><p class="field-help" data-i18n="gatewayKeyHelp">Codex must use this same value when connecting to the local gateway.</p></div>
+      <footer class="dialog-footer"><button id="cancel-gateway-key" type="button" class="secondary-button" data-i18n="cancel">Cancel</button><button type="submit" class="primary-button" data-i18n="updateGatewayKey">Update key</button></footer>
+    </form>
+  </dialog>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script src="/admin/assets/admin.js"></script>
+</body>
+</html>
